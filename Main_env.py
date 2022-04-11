@@ -40,13 +40,15 @@ class TrainEnv(object):
 
         "计算列车MEC属性"
         for train_i in trainList:
-            MEC_train_i = Move_Draw.mecCover(train_i, MECList)
-            train_i.MEC = MEC_train_i
-            print(train_i.MEC)
+            train_i.MEC = Move_Draw.mecCover(train_i, MECList)
+            # print(train_i.MEC)
+        "给MEC随机负载"
+        MECList = Move_Draw.MEC_randomload(0,MECList)
+
+
         return track, trainList, MECList
 
     "交互环境"
-
     def env(self, track, trainList, MECList, action):
         "执行action"
 
@@ -65,6 +67,7 @@ class TrainEnv(object):
                 if MEC_i.num == action[4]:
                     MEC_i.load += action[5] * TrainEnv.Taskload  # Taskload作为每个任务的超参数，乘上负载比例
 
+
         "计算当前收获，reward"
         "当前思路：超过计算容量的就变成惩罚项"
 
@@ -78,7 +81,7 @@ class TrainEnv(object):
                 train_i.load = train_i.Maxload
                 train_i.load -= TrainEnv.Trainpower
                 # 惩罚项在这儿
-                Reward_t = 0
+                Reward_t = 0 #TODO 奖励、惩罚还没做，考虑溢出数据为惩罚，计算时间也为惩罚
             else:
                 train_i.load -= TrainEnv.Trainpower  # 每个周期计算掉的容量
                 # 奖励项在这儿
@@ -100,7 +103,14 @@ class TrainEnv(object):
                 Reward_M = 0
         Reward = Reward_M + Reward_t  # 总奖励值
 
+
         "状态转移到下一状态"
+        "恢复所有入侵事件"
+        trainList = Move_Draw.relief(trainList)
+        "生成MEC随机负载"
+        MECList = Move_Draw.MEC_randomload(0,MECList)
+
+
         '列车移动并更新属性'
         for train_i in trainList:
             # 列车移动
@@ -108,6 +118,8 @@ class TrainEnv(object):
             # 更新每辆车的MEC coverage
             MEC_train_i = Move_Draw.mecCover(train_i, MECList)
             train_i.MEC = MEC_train_i
-        Move_Draw.intrusion(trainList)  # 生成事件
+
+        "生成随机入侵事件"
+        trainList = Move_Draw.intrusion(trainList)
 
         return track, trainList, MECList, Reward

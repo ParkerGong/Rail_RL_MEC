@@ -31,8 +31,17 @@ def intrusion(seed,trainlist):
         trainlist[i].level = 2
 
 "将任务等级恢复为1级"
-def relief(seed,trainlist):
+def relief(trainlist):
     for train_i in trainlist:
         train_i.level =1
+    return trainlist
 
+
+"每个服务器生成随机负载"
+def MEC_randomload(seed,MEClist):
+    for MEC_i  in MEClist:
+        MEC_i.load = MEC_i.maxload * random.uniform(0.1,0.4)
+    return MEClist
+
+#TODO 需要增加MEC workload排序、计算每个任务的时间
 
