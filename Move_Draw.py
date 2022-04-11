@@ -43,4 +43,5 @@ def MEC_randomload(seed,MEClist):
         MEC_i.load = MEC_i.maxload * random.uniform(0.1,0.4)
     return MEClist
 
+#TODO 需要增加MEC workload排序、计算每个任务的时间
 

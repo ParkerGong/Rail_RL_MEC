@@ -81,7 +81,7 @@ class TrainEnv(object):
                 train_i.load = train_i.Maxload
                 train_i.load -= TrainEnv.Trainpower
                 # 惩罚项在这儿
-                Reward_t = 0
+                Reward_t = 0 #TODO 奖励、惩罚还没做，考虑溢出数据为惩罚，计算时间也为惩罚
             else:
                 train_i.load -= TrainEnv.Trainpower  # 每个周期计算掉的容量
                 # 奖励项在这儿
