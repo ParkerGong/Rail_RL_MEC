@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 ticks = time.time()
 print("Now Time:", ticks)
@@ -25,13 +26,13 @@ class MEC:
     'MEC属性'
     totalMECNum = 0
 
-    def __init__(self,MECNum,MECPlace,MECConver,MECload,MECmaxload):
+    def __init__(self,MECNum,MECPlace,MECConver,MECload,MECmaxload,MECorder):
         self.num = MECNum
         self.place = MECPlace
         self.coverage = MECConver
         self.load = MECload
         self.Maxload = MECmaxload
-        self.order = []
+        self.order = MECorder #任务队列顺序
         MEC.totalMECNum += 1
 
 class Track:
