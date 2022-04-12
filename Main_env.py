@@ -17,24 +17,25 @@ class TrainEnv(object):
         track = basic.Track(2000)  # 长度2000米
 
         "创建列车对象"
-        train0 = basic.Train(1, 2000, [], 1, 0, 100)
-        train1 = basic.Train(1, 1800, [], 1, 0, 100)
-        train2 = basic.Train(2, 1500, [], 1, 0, 100)
-        train3 = basic.Train(3, 1200, [], 1, 0, 100)
-        train4 = basic.Train(4, 800, [], 1, 0, 100)
-        train5 = basic.Train(5, 700, [], 1, 0, 100)
-        train6 = basic.Train(6, 600, [], 1, 0, 100)
-        train7 = basic.Train(7, 500, [], 1, 0, 100)
-        train8 = basic.Train(8, 300, [], 1, 0, 100)
-        train9 = basic.Train(9, 100, [], 1, 0, 100)
+        "编号、位置、MEC覆盖、列车等级（2级为低等级，1级为高优先级）、负载、最大负载"
+        train0 = basic.Train(1, 2000, [], 2, 0, 100)
+        train1 = basic.Train(1, 1800, [], 2, 0, 100)
+        train2 = basic.Train(2, 1500, [], 2, 0, 100)
+        train3 = basic.Train(3, 1200, [], 2, 0, 100)
+        train4 = basic.Train(4, 800, [], 2, 0, 100)
+        train5 = basic.Train(5, 700, [], 2, 0, 100)
+        train6 = basic.Train(6, 600, [], 2, 0, 100)
+        train7 = basic.Train(7, 500, [], 2, 0, 100)
+        train8 = basic.Train(8, 300, [], 2, 0, 100)
+        train9 = basic.Train(9, 100, [], 2, 0, 100)
 
         trainList = [train0, train1, train2, train3, train4, train5, train6, train7, train8, train9]
 
-        "创建MEC对象,编号、位置、覆盖范围、负载,最大负载"
-        MEC0 = basic.MEC(0, 0, 800, 200, 1000)
-        MEC1 = basic.MEC(1, 600, 800, 200, 1000)
-        MEC2 = basic.MEC(2, 1200, 800, 200, 1000)
-        MEC3 = basic.MEC(3, 1800, 800, 200, 1000)
+        "创建MEC对象,编号、位置、覆盖范围、负载,最大负载、MECorder"
+        MEC0 = basic.MEC(0, 0, 800, 200, 1000,[])
+        MEC1 = basic.MEC(1, 600, 800, 200, 1000,[])
+        MEC2 = basic.MEC(2, 1200, 800, 200, 1000,[])
+        MEC3 = basic.MEC(3, 1800, 800, 200, 1000,[])
 
         MECList = [MEC0, MEC1, MEC2, MEC3]
 
@@ -51,7 +52,7 @@ class TrainEnv(object):
     "交互环境"
     def env(self, track, trainList, MECList, action):
         "执行action"
-
+        # TODO aciton维度应该为
         # aciton[列车算/MEC算，原MEC编号，任务比例、helper编号、任务比例]
         "列车资源更新"
         if action[0] == 0:
