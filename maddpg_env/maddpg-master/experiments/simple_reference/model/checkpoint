@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/parkersix/MARL/MADDPG/maddpg-master/experiments/simple_reference/model/"
+all_model_checkpoint_paths: "/Users/parkersix/MARL/MADDPG/maddpg-master/experiments/simple_reference/model/"
