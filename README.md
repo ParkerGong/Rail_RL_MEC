@@ -11,3 +11,5 @@ rl.py: the reinforcement learning network.
 
 main.py: major body code of training process.
 
+test.py: for function testing only.
+
