@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.7 (tensorflow)" jdkType="Python SDK" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/maddpg_env/maddpg-master/maddpg" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/maddpg_env/maddpg-master/maddpg/common" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/maddpg_env/multiagent-particle-envs-master/multiagent" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/parl-maddpg/multiagent" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Myenv" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/maddpg_env/maddpg-master/maddpg/common/multiagent" />
+      <excludeFolder url="file://$MODULE_DIR$/parl-maddpg" />
+      <excludeFolder url="file://$MODULE_DIR$/maddpg_env" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.6 (maddpg) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
