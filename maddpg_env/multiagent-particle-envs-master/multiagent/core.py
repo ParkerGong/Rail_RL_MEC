@@ -97,6 +97,11 @@ class World(object):
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
+        # penalty for overload
+        self.penalty = 5
+        # 两种任务的任务量
+        self.taskmout0 = 20  # 一级任务量
+        self.taskmout1 = 30  # 二级任务量
 
     # return all entities in the world
     @property

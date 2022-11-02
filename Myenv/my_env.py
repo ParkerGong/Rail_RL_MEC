@@ -17,10 +17,10 @@ class Scenario(BaseScenario):
         Trainspeed = 20  # 列车运行速度
         world.dim_p = 3  # 动作三维 本地算 服务器a算 服务器b算
         world.dim_c = 2  # ！！！！ communication channel dimensionality
-        num_agents = 3  # 车的数量
+        num_agents = 5  # 车的数量
         num_MECs = 3  # MEC数量
         taskmout0 = 20  # 一级任务量
-        taskmout1 = 20  # 二级任务量
+        taskmout1 = 30  # 二级任务量
         world.collaborative = True
 
         # # add agents
@@ -74,61 +74,22 @@ class Scenario(BaseScenario):
         world.mecs = World.MEC_randomload(world, seed=0, MEClist=world.mecs)  # 随机负载
 
         "生成随机入侵事件"
-        world.agents = world.intrusion(0, world.agents)
+        world.agents = world.intrusion(0, world.agents, world)
         return world
-
-        # # random properties for agents
-        # for i, agent in enumerate(world.agents):
-        #     agent.color = np.array([0.35, 0.35, 0.85])
-        # # random properties for landmarks
-        # for i, landmark in enumerate(world.landmarks):
-        #     landmark.color = np.array([0.25, 0.25, 0.25])
-        # set random initial states
-        # for agent in world.agents:
-        #     agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-        #     agent.state.p_vel = np.zeros(world.dim_p)
-        #     agent.state.c = np.zeros(world.dim_c)
-        # for i, landmark in enumerate(world.landmarks):
-        #     landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-        #     landmark.state.p_vel = np.zeros(world.dim_p)
-
-    # def benchmark_data(self, agent, world):
-    #     rew = 0
-    #     collisions = 0
-    #     occupied_landmarks = 0
-    #     min_dists = 0
-    #     for l in world.landmarks:
-    #         dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
-    #         min_dists += min(dists)
-    #         rew -= min(dists)
-    #         if min(dists) < 0.1:
-    #             occupied_landmarks += 1
-    #     if agent.collide:
-    #         for a in world.agents:
-    #             if self.is_collision(a, agent):
-    #                 rew -= 1
-    #                 collisions += 1
-    #     return (rew, collisions, min_dists, occupied_landmarks)
-
-    # def is_collision(self, agent1, agent2):
-    #     delta_pos = agent1.state.p_pos - agent2.state.p_pos
-    #     dist = np.sqrt(np.sum(np.square(delta_pos)))
-    #     dist_min = agent1.size + agent2.size
-    #     return True if dist < dist_min else False
 
     def reward(self, agent, world):
         # Agents are rewarded based on computing time of all trains.
         rew = 0
-
-        # # Agents are rewarded based on minimum agent distance to each landmark, penalized for collisions
-        # rew = 0
-        # for l in world.landmarks:
-        #     dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
-        #     rew -= min(dists)
-        # if agent.collide:
-        #     for a in world.agents:
-        #         if self.is_collision(a, agent):
-        #             rew -= 1
+        # action == 0 就是在列车本地算，action == 1 在列表中第一个MEC算，action == 2 在列表中第二个MEC算
+        if agent.action.offload == 0:
+            protime = agent.state.taskmount / agent.state.tMaxload
+        else:
+            for mec in world.mecs:
+                if mec.state.MECload <= mec.state.MECMaxload:
+                    protime = (mec.state.MECload / mec.state.MECMaxload)
+                else:
+                    protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+        rew -= protime
         return rew
 
     def observation(self, agent, world):
@@ -167,4 +128,4 @@ class Scenario(BaseScenario):
             # 重新计算MECcover
             train_i.state.MECcover = world.mecCover(train_i, world.mecs)
             # 重新生成新的入侵事件
-            world.agents = world.intrusion(0, world.agents)
+            world.agents = world.intrusion(0, world.agents, world)

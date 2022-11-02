@@ -162,12 +162,13 @@ class World(object):
                 break
         return item
 
-    def intrusion(self, seed, trainlist):
+    def intrusion(self, seed, trainlist, world):
         value_list = [0, 1]
         probability = [0.9, 0.1]
         for i in range(len(trainlist)):
             result = self.number_of_certain_probability(value_list, probability)
             trainlist[i].state.level = result
+            trainlist[i].state.taskmount = world.taskmount0 + result * world.taskmount1 # result == 0 则只有语义分割， == 1 则有两部分任务
         return trainlist
 
     # update state of the world
