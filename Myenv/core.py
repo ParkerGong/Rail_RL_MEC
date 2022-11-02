@@ -29,6 +29,8 @@ class AgentState(object):
         self.MECcover = []
         # 列车运行速度
         self.trainspeed = 0
+        # 任务大小
+        self.taskmount = 0
 
 
 # state of agents (including communication and internal/mental state)
@@ -140,11 +142,11 @@ class World(object):
 
     def mecCover(self, t, MEClist):
         trainMEC = []
+        if t.state.t_pos == 0:
+            # 在0位置时同时也能被环线上最后一个服务器覆盖
+            trainMEC.append(2) #MEC2
         for MEC_ in MEClist:
-            if t.state.t_pos == 0:
-                # 在0位置时同时也能被环线上最后一个服务器覆盖
-                trainMEC.append(2)
-            if MEC_.state.MEC_pos - MEC_.state.cover / 2 <= t.state.t_pos <= MEC_.state.MEC_pos + MEC_.state.cover / 2:
+            if MEC_.state.MEC_pos - MEC_.state.cover / 2 <= t.state.t_pos <= MEC_.state.MEC_pos + MEC_.state.cover / 2 - 1:
                 trainMEC.append(MEC_.number)
         print(trainMEC)
         return trainMEC
@@ -160,12 +162,13 @@ class World(object):
                 break
         return item
 
-    def intrusion(self, seed, trainlist):
+    def intrusion(self, seed, trainlist, world):
         value_list = [0, 1]
         probability = [0.9, 0.1]
         for i in range(len(trainlist)):
             result = self.number_of_certain_probability(value_list, probability)
             trainlist[i].state.level = result
+            trainlist[i].state.taskmount = world.taskmount0 + result * world.taskmount1 # result == 0 则只有语义分割， == 1 则有两部分任务
         return trainlist
 
     # update state of the world
