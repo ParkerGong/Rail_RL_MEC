@@ -78,11 +78,7 @@ def main(enviroment=None):
 
     for agent in world.agents:
         obv = env.observation(agent, world)
-        print("111111111")
 
-
-    print(world.agents)
-    print("111111111")
 
 
 

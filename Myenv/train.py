@@ -28,12 +28,12 @@ import numpy as np
 from simple_model import MAModel
 from simple_agent import MAAgent
 import parl
-from gym.envs.multiagent.multiagent_simple_env import MAenv
+from dependency.multiagent_simple_env import MAenv
 from parl.utils import logger, summary
 
 
 def run_episode(env, agents):
-    obs_n = env.reset()
+    obs_n = env.reset() # 返回观测值
     total_reward = 0
     agents_reward = [0 for _ in range(env.n)]
     steps = 0
