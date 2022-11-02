@@ -1,0 +1,2 @@
+[33m[04-23 15:58:06 MainThread @tensorboard.py:34][0m [5m[33mWRN[0m [tensorboard] logdir is None, will save tensorboard files to train_log\train
+View the data using: tensorboard --logdir=./train_log\train --host=10.22.151.209
