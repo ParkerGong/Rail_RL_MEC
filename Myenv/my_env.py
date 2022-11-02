@@ -81,15 +81,16 @@ class Scenario(BaseScenario):
         # Agents are rewarded based on computing time of all trains.
         rew = 0
         # action == 0 就是在列车本地算，action == 1 在列表中第一个MEC算，action == 2 在列表中第二个MEC算
-        if agent.action.offload == 0:
-            protime = agent.state.taskmount / agent.state.tMaxload
-        else:
-            for mec in world.mecs:
-                if mec.state.MECload <= mec.state.MECMaxload:
-                    protime = (mec.state.MECload / mec.state.MECMaxload)
-                else:
-                    protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
-        rew -= protime
+        for ag in agent:
+            if ag.action.offload == 0:
+                protime = agent.state.taskmount / agent.state.tMaxload
+            else:
+                for mec in world.mecs:
+                    if mec.state.MECload <= mec.state.MECMaxload:
+                        protime = (mec.state.MECload / mec.state.MECMaxload)
+                    else:
+                        protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+            rew -= protime
         return rew
 
     def observation(self, agent, world):
@@ -129,3 +130,5 @@ class Scenario(BaseScenario):
             train_i.state.MECcover = world.mecCover(train_i, world.mecs)
             # 重新生成新的入侵事件
             world.agents = world.intrusion(0, world.agents, world)
+
+

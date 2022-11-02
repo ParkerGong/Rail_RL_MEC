@@ -17,9 +17,9 @@ sys.path.append("H:/Anaconda3-2020.02/envs/parl/Lib/site-packages/parl/env")
 sys.path.append("H:\Anaconda3-202002\envs\parl\Lib\site-packages\gym\envs\multiagent") """
 
 from gym import spaces
-from gym.envs.multiagent.multi_discrete import MultiDiscrete
-from gym.envs.multiagent.environment import MultiAgentEnv
-import gym.envs.multiagent.scenarios as scenarios
+from multi_discrete import MultiDiscrete
+from dependency.multiagent.environment import MultiAgentEnv
+import dependency.multiagent.scenarios as scenarios
 
 
 class MAenv(MultiAgentEnv):
@@ -28,6 +28,7 @@ class MAenv(MultiAgentEnv):
 
     def __init__(self, scenario_name):
         # load scenario from script
+        #TODO 把这里改成我的路径
         scenario = scenarios.load(scenario_name + ".py").Scenario()
         # create world
         world = scenario.make_world()
