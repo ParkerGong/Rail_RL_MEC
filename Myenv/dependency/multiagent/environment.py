@@ -28,7 +28,7 @@ class MultiAgentEnv(gym.Env):
         # environment parameters
         self.discrete_action_space = True
         # if true, action is a number 0...N, otherwise action is a one-hot N-dimensional vector
-        self.discrete_action_input = False
+        self.discrete_action_input = True
         # if true, even the action is continuous, action will be performed discretely
         self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False
         # if true, every agent has the same reward
@@ -36,38 +36,12 @@ class MultiAgentEnv(gym.Env):
         self.time = 0
 
         # configure spaces
-        self.action_space = []
+        self.action_space = [spaces.Discrete(3) for i in range(self.n)] #三个动作，0代表本车算，1、2代表卸载
         self.observation_space = []
         for agent in self.agents:
-            total_action_space = []
-            # physical action space
-            if self.discrete_action_space:
-                u_action_space = spaces.Discrete(world.dim_p * 2 + 1)
-            else:
-                u_action_space = spaces.Box(low=-agent.u_range, high=+agent.u_range, shape=(world.dim_p,), dtype=np.float32)
-            if agent.movable:
-                total_action_space.append(u_action_space)
-            # communication action space
-            if self.discrete_action_space:
-                c_action_space = spaces.Discrete(world.dim_c)
-            else:
-                c_action_space = spaces.Box(low=0.0, high=1.0, shape=(world.dim_c,), dtype=np.float32)
-            if not agent.silent:
-                total_action_space.append(c_action_space)
-            # total action space
-            if len(total_action_space) > 1:
-                # all action spaces are discrete, so simplify to MultiDiscrete action space
-                if all([isinstance(act_space, spaces.Discrete) for act_space in total_action_space]):
-                    act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_action_space])
-                else:
-                    act_space = spaces.Tuple(total_action_space)
-                self.action_space.append(act_space)
-            else:
-                self.action_space.append(total_action_space[0])
-            # observation space
             obs_dim = len(observation_callback(agent, self.world))
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
-            agent.action.c = np.zeros(self.world.dim_c)
+            #agent.action.c = np.zeros(self.world.dim_c) # agent.action.c暂时不通信
 
         # rendering
         self.shared_viewer = shared_viewer

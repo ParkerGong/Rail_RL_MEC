@@ -77,8 +77,9 @@ def main(enviroment=None):
     world = env.make_world()
 
     for agent in world.agents:
-        obv = env.observation(agent, world)
-
+        # obv = env.observation(agent, world)
+        print(agent.state.t_pos)
+        print('111')
 
 
 

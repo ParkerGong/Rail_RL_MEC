@@ -15,7 +15,7 @@ class AgentState(object):
     def __init__(self):
         # super(AgentState, self).__init__()
         # train position
-        self.t_pos = None
+        self.t_pos = 0
         # communication utterance
         self.c = None
         # train property 列车就是agent
@@ -101,6 +101,8 @@ class World(object):
         self.dim_c = 0
         # position dimensionality
         self.dim_p = 2
+        # action dimensionality
+        self.dim_act = 3
 
         # track length
         self.tracklen = 1800
@@ -115,6 +117,9 @@ class World(object):
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
+
+        self.taskmount0 = 20
+        self.taskmount1 = 30
 
     # return all entities in the world
     @property
@@ -142,11 +147,11 @@ class World(object):
 
     def mecCover(self, t, MEClist):
         trainMEC = []
-        if t.state.t_pos == 0:
+        if t.state.t_pos < 600:
             # 在0位置时同时也能被环线上最后一个服务器覆盖
-            trainMEC.append(2) #MEC2
+            trainMEC.append(MEClist[-1].number) #MEC2
         for MEC_ in MEClist:
-            if MEC_.state.MEC_pos - MEC_.state.cover / 2 <= t.state.t_pos <= MEC_.state.MEC_pos + MEC_.state.cover / 2 - 1:
+            if MEC_.state.MEC_pos - (MEC_.state.cover / 2) <= t.state.t_pos < MEC_.state.MEC_pos + (MEC_.state.cover / 2) :
                 trainMEC.append(MEC_.number)
         print(trainMEC)
         return trainMEC

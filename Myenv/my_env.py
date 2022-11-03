@@ -19,8 +19,8 @@ class Scenario(BaseScenario):
         world.dim_c = 2  # ！！！！ communication channel dimensionality
         num_agents = 5  # 车的数量
         num_MECs = 3  # MEC数量
-        taskmout0 = 20  # 一级任务量
-        taskmout1 = 30  # 二级任务量
+        world.taskmount0 = 20  # 一级任务量
+        world.taskmount1 = 30  # 二级任务量
         world.collaborative = True
 
         # # add agents
@@ -36,14 +36,14 @@ class Scenario(BaseScenario):
         for i, agent in enumerate(world.agents):
             agent.name = 'train %d' % i  # 编号
             agent.number = i
-            agent.state.t_pos = 0 + 300 * i  # 位置
+            agent.state.t_pos = 0 + 400 * i  # 位置
             # agents.MEC_cov = [] #MEC覆盖，这个要动态更新
             agent.state.level = 0  # 任务等级，0为正常状态，1为特殊情况需优先处理
             agent.state.trainspeed = Trainspeed  # 列车运行速度
             # agents.workload = 0 #当前负载
             agent.state.tMaxload = Trainpower  # 最大负载
             agent.state.MECcover = [0, 0]  # MEC覆盖，这个要动态更新
-            agent.state.taskmount = taskmout0  # 当前任务量
+            agent.state.taskmount = world.taskmount0  # 当前任务量
 
         # add MECs
         world.mecs = [MEC() for i in range(num_MECs)]
@@ -65,7 +65,7 @@ class Scenario(BaseScenario):
 
         for train_i in world.agents:
             # 列车恢复位置
-            train_i.state.t_pos = 0 + 600 * train_i.number
+            train_i.state.t_pos = 0 + 400 * train_i.number
             # 计算列车MEC属性
             train_i.state.MECcover = world.mecCover(train_i, world.mecs)
             # print(train_i.state.MECconver)
