@@ -28,7 +28,7 @@ import numpy as np
 from simple_model import MAModel
 from simple_agent import MAAgent
 import parl
-from dependency.multiagent_simple_env import MAenv
+from multiagent_simple_env import MAenv
 from parl.utils import logger, summary
 
 
@@ -88,7 +88,7 @@ def train_agent():
         logger.info('agent {} obs_low:{} obs_high:{}'.format(
             i, env.observation_space[i].low, env.observation_space[i].high))
         logger.info('agent {} act_n:{}'.format(i, env.act_shape_n[i]))
-        if ('low' in dir(env.action_space[i])):
+        if ('low' in dir(env.action_space[i].n)):
             logger.info('agent {} act_low:{} act_high:{} act_shape:{}'.format(
                 i, env.action_space[i].low, env.action_space[i].high,
                 env.action_space[i].shape))
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--env',
         type=str,
-        default='simple_spread',
+        default='my_env',
         help='scenario of MultiAgentEnv')
     parser.add_argument(
         '--max_step_per_episode',

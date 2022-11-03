@@ -19,7 +19,8 @@ sys.path.append("H:\Anaconda3-202002\envs\parl\Lib\site-packages\gym\envs\multia
 from gym import spaces
 from multi_discrete import MultiDiscrete
 from dependency.multiagent.environment import MultiAgentEnv
-import dependency.multiagent.scenarios as scenarios
+#import dependency.multiagent.scenarios as scenarios
+import my_env
 
 
 class MAenv(MultiAgentEnv):
@@ -28,8 +29,7 @@ class MAenv(MultiAgentEnv):
 
     def __init__(self, scenario_name):
         # load scenario from script
-        #TODO 把这里改成我的路径
-        scenario = scenarios.load(scenario_name + ".py").Scenario()
+        scenario = my_env.Scenario()
         # create world
         world = scenario.make_world()
         # initial multiagent environment
@@ -38,6 +38,7 @@ class MAenv(MultiAgentEnv):
         self.obs_shape_n = [
             self.get_shape(self.observation_space[i]) for i in range(self.n)
         ]
+        # self.act_shape_n = [world.dim_act for i in range(self.n)] #以下代码不能用了，动作空间为3维
         self.act_shape_n = [
             self.get_shape(self.action_space[i]) for i in range(self.n)
         ]
