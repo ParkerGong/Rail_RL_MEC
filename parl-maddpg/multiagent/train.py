@@ -28,7 +28,7 @@ import numpy as np
 from simple_model import MAModel
 from simple_agent import MAAgent
 import parl
-from gym.envs.multiagent.multiagent_simple_env import MAenv
+from Dependency.multiagent_simple_env import MAenv
 from parl.utils import logger, summary
 
 
