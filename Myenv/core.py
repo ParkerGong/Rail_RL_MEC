@@ -78,6 +78,8 @@ class Agent(Entity):
         self.action = Action()
         # script behavior to execute
         self.action_callback = None
+        # movable
+        self.movable = True
 
 
 # properties of MEC entities
@@ -153,7 +155,7 @@ class World(object):
         for MEC_ in MEClist:
             if MEC_.state.MEC_pos - (MEC_.state.cover / 2) <= t.state.t_pos < MEC_.state.MEC_pos + (MEC_.state.cover / 2) :
                 trainMEC.append(MEC_.number)
-        print(trainMEC)
+        # print(trainMEC)
         return trainMEC
 
     "随机生成入侵事件，将任务等级提升为1级"
@@ -178,67 +180,78 @@ class World(object):
 
     # update state of the world
     def step(self):
-        # set actions for scripted agents 
-        for agent in self.scripted_agents:
-            agent.action = agent.action_callback(agent, self)
-        # gather forces applied to entities
-        p_force = [None] * len(self.entities)
-        # apply agent physical controls
-        p_force = self.apply_action_force(p_force)
-        # apply environment forces
-        p_force = self.apply_environment_force(p_force)
-        # integrate physical state
-        self.integrate_state(p_force)
+        # # set actions for scripted agents
+        # for agent in self.scripted_agents:
+        #     agent.action = agent.action_callback(agent, self)
+        # # gather forces applied to entities
+        # p_force = [None] * len(self.entities)
+        # # apply agent physical controls
+        # p_force = self.apply_action_force(p_force)
+        # # apply environment forces
+        # p_force = self.apply_environment_force(p_force)
+        # # integrate physical state
+        # self.integrate_state(p_force)
+
         # update agent state
         for agent in self.agents:
             self.update_agent_state(agent)
+        # update mec state
+        self.update_mec_state(self)
 
-    # gather agent action forces
-    def apply_action_force(self, p_force):
-        # set applied forces
-        for i, agent in enumerate(self.agents):
-            if agent.movable:
-                noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
-                p_force[i] = agent.action.u + noise
-        return p_force
-
-    # gather physical forces acting on entities
-    def apply_environment_force(self, p_force):
-        # simple (but inefficient) collision response
-        for a, entity_a in enumerate(self.entities):
-            for b, entity_b in enumerate(self.entities):
-                if (b <= a): continue
-                [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
-                if (f_a is not None):
-                    if (p_force[a] is None): p_force[a] = 0.0
-                    p_force[a] = f_a + p_force[a]
-                if (f_b is not None):
-                    if (p_force[b] is None): p_force[b] = 0.0
-                    p_force[b] = f_b + p_force[b]
-        return p_force
-
-    # integrate physical state
-    def integrate_state(self, p_force):
-        for i, entity in enumerate(self.entities):
-            if not entity.movable: continue
-            entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
-            if (p_force[i] is not None):
-                entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
-            if entity.max_speed is not None:
-                speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1]))
-                if speed > entity.max_speed:
-                    entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
-                                                                      np.square(
-                                                                          entity.state.p_vel[1])) * entity.max_speed
-            entity.state.p_pos += entity.state.p_vel * self.dt
+    # # gather agent action forces
+    # def apply_action_force(self, p_force):
+    #     # set applied forces
+    #     for i, agent in enumerate(self.agents):
+    #         if agent.movable:
+    #             noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
+    #             p_force[i] = agent.action.u + noise
+    #     return p_force
+    #
+    # # gather physical forces acting on entities
+    # def apply_environment_force(self, p_force):
+    #     # simple (but inefficient) collision response
+    #     for a, entity_a in enumerate(self.entities):
+    #         for b, entity_b in enumerate(self.entities):
+    #             if (b <= a): continue
+    #             [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
+    #             if (f_a is not None):
+    #                 if (p_force[a] is None): p_force[a] = 0.0
+    #                 p_force[a] = f_a + p_force[a]
+    #             if (f_b is not None):
+    #                 if (p_force[b] is None): p_force[b] = 0.0
+    #                 p_force[b] = f_b + p_force[b]
+    #     return p_force
+    #
+    # # integrate physical state
+    # def integrate_state(self, p_force):
+    #     for i, entity in enumerate(self.entities):
+    #         if not entity.movable: continue
+    #         entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
+    #         if (p_force[i] is not None):
+    #             entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
+    #         if entity.max_speed is not None:
+    #             speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1]))
+    #             if speed > entity.max_speed:
+    #                 entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
+    #                                                                   np.square(
+    #                                                                       entity.state.p_vel[1])) * entity.max_speed
+    #         entity.state.p_pos += entity.state.p_vel * self.dt
 
     def update_agent_state(self, agent):
-        # set communication state (directly for now)
-        if agent.silent:
-            agent.state.c = np.zeros(self.dim_c)
-        else:
-            noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
-            agent.state.c = agent.action.c + noise
+        # # set communication state (directly for now)
+        # if agent.silent:
+        #     agent.state.c = np.zeros(self.dim_c)
+        # else:
+        #     noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
+        #     agent.state.c = agent.action.c + noise
+        agent.state.t_pos += agent.state.trainspeed
+
+    def update_mec_state(self, world):
+        # MEC恢复初始load
+        world.mecs = World.MEC_randomload(world, seed=0, MEClist=world.mecs)  # 随机负载
+
+        "生成随机入侵事件"
+        world.agents = world.intrusion(0, world.agents, world)
 
             # get collision forces for any contact between two entities
 

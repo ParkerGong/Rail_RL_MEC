@@ -59,7 +59,7 @@ class MultiAgentEnv(gym.Env):
         self.agents = self.world.policy_agents
         # set action for each agent
         for i, agent in enumerate(self.agents):
-            self._set_action(action_n[i], agent, self.action_space[i])
+            self._set_action(action_n[i], self.world, agent, self.action_space[i])
         # advance world state
         self.world.step()
         # record observation for each agent
@@ -115,9 +115,11 @@ class MultiAgentEnv(gym.Env):
         return self.reward_callback(agent, self.world)
 
     # set env action for a particular agent
-    def _set_action(self, action, agent, action_space, time=None):
-        agent.action.u = np.zeros(self.world.dim_p)
-        agent.action.c = np.zeros(self.world.dim_c)
+    def _set_action(self, action, world, agent, action_space, time=None):
+        #赋值进去
+        # agent.action.u = np.zeros(self.world.dim_p)
+        # agent.action.c = np.zeros(self.world.dim_c)
+
         # process action
         if isinstance(action_space, MultiDiscrete):
             act = []
@@ -129,41 +131,61 @@ class MultiAgentEnv(gym.Env):
             action = act
         else:
             action = [action]
-
+        agent.action.offload = action
         if agent.movable:
             # physical action
             if self.discrete_action_input:
-                agent.action.u = np.zeros(self.world.dim_p)
-                # process discrete action
-                if action[0] == 1: agent.action.u[0] = -1.0
-                if action[0] == 2: agent.action.u[0] = +1.0
-                if action[0] == 3: agent.action.u[1] = -1.0
-                if action[0] == 4: agent.action.u[1] = +1.0
+                # agent.action.u = np.zeros(self.world.dim_p)
+                if round(action[0][0]) == 1:
+                    #状态0，惩罚项就是计算时间，总任务量/算力
+                    pass
+
+                if round(action[0][1]) == 1:
+                    #状态1，取覆盖范围内第一个MEC
+                    mec_num = agent.state.MECcover[0]
+                    for mecs in world.mecs:
+                        if mecs.number == mec_num:
+                            mecs.state.MECload += agent.state.taskmount
+
+                if round(action[0][2]) == 1:
+                    # 状态2，取覆盖范围内第2个MEC
+                    mec_num = agent.state.MECcover[1]
+                    for mecs in world.mecs:
+                        if mecs.number == mec_num:
+                            mecs.state.MECload += agent.state.taskmount
+
+                # # process discrete action
+                # if action[0] == 1: agent.action.u[0] = -1.0
+                # if action[0] == 2: agent.action.u[0] = +1.0
+                # if action[0] == 3: agent.action.u[1] = -1.0
+                # if action[0] == 4: agent.action.u[1] = +1.0
             else:
-                if self.force_discrete_action:
-                    d = np.argmax(action[0])
-                    action[0][:] = 0.0
-                    action[0][d] = 1.0
-                if self.discrete_action_space:
-                    agent.action.u[0] += action[0][1] - action[0][2]
-                    agent.action.u[1] += action[0][3] - action[0][4]
-                else:
-                    agent.action.u = action[0]
-            sensitivity = 5.0
-            if agent.accel is not None:
-                sensitivity = agent.accel
-            agent.action.u *= sensitivity
-            action = action[1:]
-        if not agent.silent:
-            # communication action
-            if self.discrete_action_input:
-                agent.action.c = np.zeros(self.world.dim_c)
-                agent.action.c[action[0]] = 1.0
-            else:
-                agent.action.c = action[0]
-            action = action[1:]
+                pass
+                # if self.force_discrete_action:
+                #     d = np.argmax(action[0])
+                #     action[0][:] = 0.0
+                #     action[0][d] = 1.0
+                # if self.discrete_action_space:
+                #     agent.action.u[0] += action[0][1] - action[0][2]
+                #     agent.action.u[1] += action[0][3] - action[0][4]
+                # else:
+                #     agent.action.u = action[0]
+            # sensitivity = 5.0 #?
+
+            # if agent.accel is not None:
+            #     sensitivity = agent.accel
+            # agent.action.u *= sensitivity
+            # action = action[1:]
+        # if not agent.silent:
+        #     # communication action
+        #     if self.discrete_action_input:
+        #         agent.action.c = np.zeros(self.world.dim_c)
+        #         agent.action.c[action[0]] = 1.0
+        #     else:
+        #         agent.action.c = action[0]
+        #     action = action[1:]
         # make sure we used all elements of action
-        assert len(action) == 0
+        # assert len(action) == 0
 
     # reset rendering assets
     def _reset_render(self):
