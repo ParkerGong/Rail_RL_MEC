@@ -81,21 +81,20 @@ class Scenario(BaseScenario):
         # Agents are rewarded based on computing time of all trains.
         rew = 0
         # action == 0 就是在列车本地算，action == 1 在列表中第一个MEC算，action == 2 在列表中第二个MEC算
-        for ag in agent:
-            if ag.action.offload == 0:
-                protime = agent.state.taskmount / agent.state.tMaxload
-            else:
-                for mec in world.mecs:
-                    if mec.state.MECload <= mec.state.MECMaxload:
-                        protime = (mec.state.MECload / mec.state.MECMaxload)
-                    else:
-                        protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
-            rew -= protime
+
+        if agent.action.offload[0][0] == 0:
+            protime = agent.state.taskmount / agent.state.tMaxload
+        else:
+            for mec in world.mecs:
+                if mec.state.MECload <= mec.state.MECMaxload:
+                    protime = (mec.state.MECload / mec.state.MECMaxload)
+                else:
+                    protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+        rew -= protime
         return rew
 
     def observation(self, agent, world):
         # mec覆盖范围
-
         mec_cover = agent.state.MECcover
 
         # 获取覆盖范围MEC位置、当前负载、最大负载
