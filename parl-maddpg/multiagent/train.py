@@ -28,7 +28,7 @@ import numpy as np
 from simple_model import MAModel
 from simple_agent import MAAgent
 import parl
-from gym.envs.multiagent.multiagent_simple_env import MAenv
+from Dependency.multiagent_simple_env import MAenv
 from parl.utils import logger, summary
 
 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--max_episodes',
         type=int,
-        default=25000,
+        default=55000,
         help='stop condition:number of episodes')
     parser.add_argument(
         '--stat_rate',

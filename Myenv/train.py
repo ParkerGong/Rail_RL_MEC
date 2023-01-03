@@ -39,7 +39,12 @@ def run_episode(env, agents):
     steps = 0
     while True:
         steps += 1
+        #MADDPG action
         action_n = [agent.predict(obs) for agent, obs in zip(agents, obs_n)]
+
+        #Fixed action
+        #action_n = [np.array([0.99698,0.0301,0.0001]),np.array([0.99698,0.0301,0.0001]),np.array([0.99698,0.0301,0.0001]),np.array([0.99698,0.0301,0.0001]),np.array([0.99698,0.0301,0.0001])]
+
         next_obs_n, reward_n, done_n, _ = env.step(action_n)
         done = all(done_n)
         terminal = (steps >= args.max_step_per_episode)
@@ -191,17 +196,17 @@ if __name__ == '__main__':
     parser.add_argument(
         '--max_step_per_episode',
         type=int,
-        default=50,
+        default=100,
         help='maximum step per episode')
     parser.add_argument(
         '--max_episodes',
         type=int,
-        default=25000,
+        default=35000,
         help='stop condition:number of episodes')
     parser.add_argument(
         '--stat_rate',
         type=int,
-        default=500,  #第1000episodes保存一下，并显示reward值。
+        default=50,  #第500episodes保存一下，并显示reward值。
         help='statistical interval of save model or count reward')
     # Core training parameters
     parser.add_argument(

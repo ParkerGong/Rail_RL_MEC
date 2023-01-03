@@ -143,6 +143,7 @@ class World(object):
     def MEC_randomload(self, seed, MEClist):
         for MEC_i in MEClist:
             MEC_i.state.MECload = MEC_i.state.MECMaxload * random.uniform(0.1, 0.4)
+            #MEC_i.state.MECload = MEC_i.state.MECMaxload * 0.3
         return MEClist
 
     "列车计算MEC范围"
@@ -171,7 +172,7 @@ class World(object):
 
     def intrusion(self, seed, trainlist, world):
         value_list = [0, 1]
-        probability = [0.9, 0.1]
+        probability = [0.5, 0.5]
         for i in range(len(trainlist)):
             result = self.number_of_certain_probability(value_list, probability)
             trainlist[i].state.level = result
