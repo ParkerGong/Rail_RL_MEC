@@ -1,6 +1,0 @@
-[33m[12-26 23:53:58 MainThread @tensorboard.py:34][0m [5m[33mWRN[0m [tensorboard] logdir is None, will save tensorboard files to train_log/train
-View the data using: tensorboard --logdir=train_log/train --host=192.168.10.13
-[32m[12-26 23:54:36 MainThread @train.py:166][0m Steps: 25000, Episodes: 500, Mean episode reward: -1384.2737506774847, Time: 37.532
-[32m[12-26 23:54:37 MainThread @machine_info.py:91][0m Cannot find available GPU devices, using CPU or other devices now. (Please check whether you can execute `nvidia-smi` command.)
-[32m[12-26 23:54:37 MainThread @machine_info.py:91][0m Cannot find available GPU devices, using CPU or other devices now. (Please check whether you can execute `nvidia-smi` command.)
-[32m[12-26 23:54:37 MainThread @machine_info.py:91][0m Cannot find available GPU devices, using CPU or other devices now. (Please check whether you can execute `nvidia-smi` command.)

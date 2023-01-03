@@ -1,5 +1,5 @@
 import numpy as np
-from Myenv.core import World, Agent, MEC
+from core import World, Agent, MEC
 from scenario import BaseScenario
 import random
 
@@ -11,13 +11,13 @@ class Scenario(BaseScenario):
         # set any world properties first
 
         Taskload = 1  # 这里要放到超参数里,一级任务和二级任务负载不同
-        MECpower = 300  # MEC算力
+        MECpower = 150  # MEC算力
         MECrange = 1200  # MEC覆盖范围
         Trainpower = 50  # 列车算力
         Trainspeed = 20  # 列车运行速度
         world.dim_p = 3  # 动作三维 本地算 服务器a算 服务器b算
         world.dim_c = 2  # ！！！！ communication channel dimensionality
-        num_agents = 5  # 车的数量
+        num_agents = 8  # 车的数量
         num_MECs = 3  # MEC数量
         world.taskmount0 = 20  # 一级任务量
         world.taskmount1 = 30  # 二级任务量
@@ -36,7 +36,7 @@ class Scenario(BaseScenario):
         for i, agent in enumerate(world.agents):
             agent.name = 'train %d' % i  # 编号
             agent.number = i
-            agent.state.t_pos = 0 + 400 * i  # 位置
+            agent.state.t_pos = 0 + 100 * i  # 位置
             # agents.MEC_cov = [] #MEC覆盖，这个要动态更新
             agent.state.level = 0  # 任务等级，0为正常状态，1为特殊情况需优先处理
             agent.state.trainspeed = Trainspeed  # 列车运行速度
@@ -59,13 +59,14 @@ class Scenario(BaseScenario):
 
         # make initial conditions
         world = self.reset_world(world)
+        #print(world)
         return world
 
     def reset_world(self, world):
 
         for train_i in world.agents:
             # 列车恢复位置
-            train_i.state.t_pos = 0 + 400 * train_i.number
+            train_i.state.t_pos = 0 + 200 * train_i.number
             # 计算列车MEC属性
             train_i.state.MECcover = world.mecCover(train_i, world.mecs)
             # print(train_i.state.MECconver)
@@ -81,8 +82,12 @@ class Scenario(BaseScenario):
         # Agents are rewarded based on computing time of all trains.
         rew = 0
         # action == 0 就是在列车本地算，action == 1 在列表中第一个MEC算，action == 2 在列表中第二个MEC算
-
-        if agent.action.offload[0][0] == 0:
+        # print(round(agent.action.offload[0][0]))
+        # print(round(agent.action.offload[0][1]))
+        # print(round(agent.action.offload[0][2]))
+        #########################################
+        #MADDPG
+        if round(agent.action.offload[0][0]) == 0:
             protime = agent.state.taskmount / agent.state.tMaxload
         else:
             for mec in world.mecs:
@@ -90,7 +95,24 @@ class Scenario(BaseScenario):
                     protime = (mec.state.MECload / mec.state.MECMaxload)
                 else:
                     protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+
+
+        #########################################
+        #Fixed action all local
+        #protime = agent.state.taskmount / agent.state.tMaxload
+
+        #########################################
+        # #Fixed offload
+        # for mec in world.mecs:
+        #     if mec.state.MECload <= mec.state.MECMaxload:
+        #         protime = (mec.state.MECload / mec.state.MECMaxload)
+        #     else:
+        #         protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+
         rew -= protime
+        #rew = rew - 0.2
+        rew = rew * 100
+        #print(rew)
         return rew
 
     def observation(self, agent, world):

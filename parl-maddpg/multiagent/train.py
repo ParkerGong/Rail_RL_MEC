@@ -196,7 +196,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--max_episodes',
         type=int,
-        default=25000,
+        default=55000,
         help='stop condition:number of episodes')
     parser.add_argument(
         '--stat_rate',

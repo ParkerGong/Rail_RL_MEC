@@ -135,6 +135,7 @@ class MultiAgentEnv(gym.Env):
         if agent.movable:
             # physical action
             if self.discrete_action_input:
+                #MADDPG
                 # agent.action.u = np.zeros(self.world.dim_p)
                 if round(action[0][0]) == 1:
                     #状态0，惩罚项就是计算时间，总任务量/算力
@@ -153,6 +154,12 @@ class MultiAgentEnv(gym.Env):
                     for mecs in world.mecs:
                         if mecs.number == mec_num:
                             mecs.state.MECload += agent.state.taskmount
+
+                # #Fiexed strategy
+                # mec_num = agent.state.MECcover[0]
+                # for mecs in world.mecs:
+                #     if mecs.number == mec_num:
+                #         mecs.state.MECload += agent.state.taskmount
 
                 # # process discrete action
                 # if action[0] == 1: agent.action.u[0] = -1.0
