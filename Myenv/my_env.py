@@ -11,7 +11,7 @@ class Scenario(BaseScenario):
         # set any world properties first
 
         Taskload = 1  # 这里要放到超参数里,一级任务和二级任务负载不同
-        MECpower = 150  # MEC算力
+        MECpower = 200  # MEC算力
         MECrange = 1200  # MEC覆盖范围
         Trainpower = 50  # 列车算力
         Trainspeed = 20  # 列车运行速度
@@ -19,9 +19,10 @@ class Scenario(BaseScenario):
         world.dim_c = 2  # ！！！！ communication channel dimensionality
         num_agents = 8  # 车的数量
         num_MECs = 3  # MEC数量
-        world.taskmount0 = 20  # 一级任务量
-        world.taskmount1 = 30  # 二级任务量
+        world.taskmount0 = 30  # 一级任务量
+        world.taskmount1 = 20  # 二级任务量
         world.collaborative = True
+
 
         # # add agents
         # world.agents = [Agent() for i in range(num_agents)]
@@ -66,7 +67,7 @@ class Scenario(BaseScenario):
 
         for train_i in world.agents:
             # 列车恢复位置
-            train_i.state.t_pos = 0 + 200 * train_i.number
+            train_i.state.t_pos = 0 + 100 * train_i.number
             # 计算列车MEC属性
             train_i.state.MECcover = world.mecCover(train_i, world.mecs)
             # print(train_i.state.MECconver)
@@ -85,33 +86,51 @@ class Scenario(BaseScenario):
         # print(round(agent.action.offload[0][0]))
         # print(round(agent.action.offload[0][1]))
         # print(round(agent.action.offload[0][2]))
-        #########################################
-        #MADDPG
-        if round(agent.action.offload[0][0]) == 0:
-            protime = agent.state.taskmount / agent.state.tMaxload
-        else:
+        ########################################
+        # #MADDPG
+        #
+        #
+        if agent.action.offload[0][1] > agent.action.offload[0][0] and agent.action.offload[0][1] > agent.action.offload[0][2]:
             for mec in world.mecs:
-                if mec.state.MECload <= mec.state.MECMaxload:
-                    protime = (mec.state.MECload / mec.state.MECMaxload)
-                else:
-                    protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+                if agent.state.MECcover[0] == mec.number:
+                    if mec.state.MECload <= mec.state.MECMaxload:
+                        protime = (mec.state.MECload / mec.state.MECMaxload)
+                    else:
+                        protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+                        #print(protime)
+        elif agent.action.offload[0][2] > agent.action.offload[0][0] and agent.action.offload[0][2] > agent.action.offload[0][1]:
+            for mec in world.mecs:
+                if agent.state.MECcover[1] == mec.number:
+                    if mec.state.MECload <= mec.state.MECMaxload:
+                        protime = (mec.state.MECload / mec.state.MECMaxload)
+                    else:
+                        protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+                        #print(protime)
+        elif agent.action.offload[0][0] > agent.action.offload[0][1] and agent.action.offload[0][0] > agent.action.offload[0][2]:
+            protime = agent.state.taskmount / agent.state.tMaxload
+
+        else:
+            print("There is an error in reward")
 
 
         #########################################
         #Fixed action all local
         #protime = agent.state.taskmount / agent.state.tMaxload
 
-        #########################################
-        # #Fixed offload
+        ##########################################
+        #Fixed offload
         # for mec in world.mecs:
-        #     if mec.state.MECload <= mec.state.MECMaxload:
-        #         protime = (mec.state.MECload / mec.state.MECMaxload)
-        #     else:
-        #         protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+        #     if agent.state.MECcover[0] == mec.number:
+        #         if mec.state.MECload <= mec.state.MECMaxload:
+        #             protime = (mec.state.MECload / mec.state.MECMaxload)
+        #         else:
+        #             protime = (1 + world.penalty * (mec.state.MECload - mec.state.MECMaxload))
+        #             print(protime)
+
 
         rew -= protime
         #rew = rew - 0.2
-        rew = rew * 100
+        #rew = rew * 100
         #print(rew)
         return rew
 

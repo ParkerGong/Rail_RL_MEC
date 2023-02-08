@@ -33,6 +33,7 @@ class AgentState(object):
         self.taskmount = 0
 
 
+
 # state of agents (including communication and internal/mental state)
 class MECState(object):
     def __init__(self):
@@ -109,6 +110,9 @@ class World(object):
         # track length
         self.tracklen = 1800
 
+        #panalty rate
+        self.penalty = 10
+
         # # color dimensionality
         # self.dim_color = 3
         # simulation timestep
@@ -141,9 +145,11 @@ class World(object):
     "每个服务器生成随机负载"
 
     def MEC_randomload(self, seed, MEClist):
+        # for MEC_i in MEClist:
+        #     MEC_i.state.MECload =0
         for MEC_i in MEClist:
-            MEC_i.state.MECload = MEC_i.state.MECMaxload * random.uniform(0.1, 0.4)
-            #MEC_i.state.MECload = MEC_i.state.MECMaxload * 0.3
+            MEC_i.state.MECload = MEC_i.state.MECMaxload * random.uniform(0.5, 0.9)
+
         return MEClist
 
     "列车计算MEC范围"
@@ -180,63 +186,33 @@ class World(object):
         return trainlist
 
     # update state of the world
-    def step(self):
-        # # set actions for scripted agents
-        # for agent in self.scripted_agents:
-        #     agent.action = agent.action_callback(agent, self)
-        # # gather forces applied to entities
-        # p_force = [None] * len(self.entities)
-        # # apply agent physical controls
-        # p_force = self.apply_action_force(p_force)
-        # # apply environment forces
-        # p_force = self.apply_environment_force(p_force)
-        # # integrate physical state
-        # self.integrate_state(p_force)
+    def step(self,agents,world):
+        for agent in agents:
+            # MADDPG
+            # agent.action.u = np.zeros(self.world.dim_p)
+            if agent.action.offload[0][0] >= agent.action.offload[0][1] and agent.action.offload[0][0] >= agent.action.offload[0][2]:
+                # 状态0，惩罚项就是计算时间，总任务量/算力
+                pass
 
-        # update agent state
-        for agent in self.agents:
-            self.update_agent_state(agent)
-        # update mec state
-        self.update_mec_state(self)
+            elif agent.action.offload[0][1] >= agent.action.offload[0][0] and agent.action.offload[0][1] >= agent.action.offload[0][2]:
+                # 状态1，取覆盖范围内第一个MEC
+                for mecs in world.mecs:
+                    if mecs.number == agent.state.MECcover[0]:
+                        mecs.state.MECload += agent.state.taskmount
 
-    # # gather agent action forces
-    # def apply_action_force(self, p_force):
-    #     # set applied forces
-    #     for i, agent in enumerate(self.agents):
-    #         if agent.movable:
-    #             noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
-    #             p_force[i] = agent.action.u + noise
-    #     return p_force
-    #
-    # # gather physical forces acting on entities
-    # def apply_environment_force(self, p_force):
-    #     # simple (but inefficient) collision response
-    #     for a, entity_a in enumerate(self.entities):
-    #         for b, entity_b in enumerate(self.entities):
-    #             if (b <= a): continue
-    #             [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
-    #             if (f_a is not None):
-    #                 if (p_force[a] is None): p_force[a] = 0.0
-    #                 p_force[a] = f_a + p_force[a]
-    #             if (f_b is not None):
-    #                 if (p_force[b] is None): p_force[b] = 0.0
-    #                 p_force[b] = f_b + p_force[b]
-    #     return p_force
-    #
-    # # integrate physical state
-    # def integrate_state(self, p_force):
-    #     for i, entity in enumerate(self.entities):
-    #         if not entity.movable: continue
-    #         entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
-    #         if (p_force[i] is not None):
-    #             entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
-    #         if entity.max_speed is not None:
-    #             speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1]))
-    #             if speed > entity.max_speed:
-    #                 entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
-    #                                                                   np.square(
-    #                                                                       entity.state.p_vel[1])) * entity.max_speed
-    #         entity.state.p_pos += entity.state.p_vel * self.dt
+            elif agent.action.offload[0][2] >= agent.action.offload[0][1] and agent.action.offload[0][2] >= agent.action.offload[0][0]:
+                # 状态2，取覆盖范围内第2个MEC
+                for mecs in world.mecs:
+                    if mecs.number == agent.state.MECcover[1]:
+                        mecs.state.MECload += agent.state.taskmount
+
+            else:
+                print("There is an error in world state update")
+
+        return world
+
+
+
 
     def update_agent_state(self, agent):
         # # set communication state (directly for now)
