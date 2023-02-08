@@ -3,6 +3,7 @@ from gym import spaces
 from gym.envs.registration import EnvSpec
 import numpy as np
 from multi_discrete import MultiDiscrete
+import core
 
 # environment for all agents in the multiagent world
 # currently code assumes that no agents will be created/destroyed at runtime!
@@ -56,12 +57,13 @@ class MultiAgentEnv(gym.Env):
         reward_n = []
         done_n = []
         info_n = {'n': []}
+        self.world.mecs = core.World.MEC_randomload(self.world, seed=0, MEClist=self.world.mecs)  # 随机负载
         self.agents = self.world.policy_agents
         # set action for each agent
         for i, agent in enumerate(self.agents):
             self._set_action(action_n[i], self.world, agent, self.action_space[i])
         # advance world state
-        self.world.step()
+        #self.world = self.world.step(self.agents,self.world)
         # record observation for each agent
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
@@ -137,29 +139,30 @@ class MultiAgentEnv(gym.Env):
             if self.discrete_action_input:
                 #MADDPG
                 # agent.action.u = np.zeros(self.world.dim_p)
-                if round(action[0][0]) == 1:
+                if action[0][0]>=action[0][1] and action[0][0]>=action[0][2]:
                     #状态0，惩罚项就是计算时间，总任务量/算力
                     pass
 
-                if round(action[0][1]) == 1:
+                elif action[0][1]>=action[0][0] and action[0][1]>=action[0][2]:
                     #状态1，取覆盖范围内第一个MEC
-                    mec_num = agent.state.MECcover[0]
                     for mecs in world.mecs:
-                        if mecs.number == mec_num:
+                        if mecs.number == agent.state.MECcover[0]:
                             mecs.state.MECload += agent.state.taskmount
 
-                if round(action[0][2]) == 1:
+                elif action[0][2]>=action[0][1] and action[0][2]>=action[0][0]:
                     # 状态2，取覆盖范围内第2个MEC
-                    mec_num = agent.state.MECcover[1]
                     for mecs in world.mecs:
-                        if mecs.number == mec_num:
+                        if mecs.number == agent.state.MECcover[1]:
                             mecs.state.MECload += agent.state.taskmount
+
+                else:
+                    print("There is an error in action choosing")
 
                 # #Fiexed strategy
-                # mec_num = agent.state.MECcover[0]
                 # for mecs in world.mecs:
-                #     if mecs.number == mec_num:
+                #     if mecs.number == agent.state.MECcover[0]:
                 #         mecs.state.MECload += agent.state.taskmount
+                #         print(mecs.state.MECload)
 
                 # # process discrete action
                 # if action[0] == 1: agent.action.u[0] = -1.0
